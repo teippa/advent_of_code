@@ -12,6 +12,7 @@ pandas.read_csv(
     delim_whitespace=True, 
     header=None, # Otsikot pois
     index_col=[0,] # Rivien nimet pois
-) 
+)
+pandas.read_fwf('input.txt', header=None, index_col=[0,])
 ```
 

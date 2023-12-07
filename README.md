@@ -13,6 +13,11 @@ pandas.read_csv(
     header=None, # Otsikot pois
     index_col=[0,] # Rivien nimet pois
 )
-pandas.read_fwf('input.txt', header=None, index_col=[0,])
+```
+
+Kirjaimia on kätevä vaihtaa translaten avulla:
+```python
+"Hello team!".translate(str.maketrans('Hetm!', f'Kavsi'))
+# > "Kallo vaasi"
 ```
 

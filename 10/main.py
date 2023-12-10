@@ -41,12 +41,12 @@ with open('input.txt', 'r') as F:
     field = np.array([ list(line.strip()) for line in F.readlines()])
 
 
-def plots_for_fun(field, save = False):
-    fig, ax = plt.subplots(figsize = (16,16))
+def plots_for_fun(field, save_as = None):
+    _, ax = plt.subplots(figsize = (16,16))
     ax.imshow(field)
     plt.show()
-    if save:
-        plt.imsave('fig.png', field)
+    if save_as:
+        plt.imsave(f'./{save_as}.png', field)
 
 def create_big_field(field):
     field_size = [3*s for s in field.shape]
@@ -73,7 +73,7 @@ def find_path(big_field):
 big_field = create_big_field(field)
 path = find_path(big_field)
 
-plots_for_fun(big_field + path)
+plots_for_fun(big_field + path, save_as="loop")
 
 path_total_length = (path.sum()-2)/3 # Starting cell has 2 extra dots
 print((path_total_length/2).astype(int))
@@ -100,7 +100,7 @@ insides = (outside == 0) * (thick_path == 0)
 
 plots_for_fun(
     5*insides + 2*path + thick_path, 
-    save = False
+    save_as = "insides"
 )
 
 print((insides.sum()/9).astype(int))

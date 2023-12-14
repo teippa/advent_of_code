@@ -3,11 +3,13 @@ from collections import Counter
 from itertools import permutations
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from datetime import datetime
 
 #%%
 
 def parse_line(line):
     springs, ranges = line.strip().split(' ')
+    springs = ".".join([s for s in springs.split('.') if s ])
     return springs, [int(i) for i in ranges.split(',')]
 
 def springs2list(springs: str):
@@ -30,7 +32,7 @@ for line in tqdm(lines):
     voi_helvetti = 0 # Validit järjestelyt jne
 
     # 🤮🤮🤮🤮🤮🤮🤮🤮🤮 Hyi, tää pilaa kaiken, tulee liikaa tavaraa ulos
-    for bobs in Counter(permutations([*palikat + [0,] * unused])).keys():
+    for bobs in set(permutations([*palikat + [0,] * unused])):
 
         # Joo tässä skipataan jos ne palikat on väärässä järjestyksessä
         if any(x[0]!=x[1] for x in zip(palikat, [b for b in bobs if b])):
@@ -62,6 +64,7 @@ for line in tqdm(lines):
 
 
 print(kamalaa)
+print(f"{datetime.now():%H:%M:%S}")
 
 
 # %%

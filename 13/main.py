@@ -10,92 +10,49 @@ with open("input.txt", 'r') as F:
         ])
         for structure in F.read().strip().split("\n\n")
     ]
-
-# def mirror_detector(arr):
-#     zero_positions = np.argwhere(np.abs(arr) < 2).flatten()
-#     results = []
-#     for zp in zero_positions:
-#         is_mirror = True
-#         smudge_found = arr[zp] == 1
-#         for i in range(1,arr.size):
-#             a, b = zp-i, zp+i
-#             if a < 0 or arr.size <= b:
-#                 break
-#             # print(arr[a], arr[b])
-#             if smudge_found < 2 and abs(arr[a] + arr[b]) == 1:
-#                 smudge_found += 1
-#             elif smudge_found == 1:
-#                 # Tää smudge 1 2 on ihan typerää, 
-#                 # mutta ku se voi vaikuttaa kahen 
-#                 # peräkkäisen rivin/sarakkeen diffeihin
-#                 # ja en jaksa ajatella parempaa ratkasua...
-#                 # Just look away
-#                 smudge_found += 1
-#             elif arr[a] != -1*arr[b]:
-#                 is_mirror = False
-#                 break
-
-            
-#         results.append([is_mirror, smudge_found>0, zp+1])
     
-#     if results:
-#         return max(results)
-#     else:
-#         return [False, False, 0]
-    
-def mirror_detector(pattern):
+def mirror_detector(pattern, smudge_detection = False):
     differences = np.diff(pattern=='#', axis=0).sum(axis=1)
-    zero_positions = np.argwhere(np.abs(differences) < 2).flatten()
+    zero_positions = np.argwhere(np.abs(differences) < (1+smudge_detection)).flatten()
     for zp in zero_positions:
         is_valid_mirror = True
-        smudge_detected = False
-
-        print(differences)
-
-        for i in range(differences.size-1):
-            a, b = zp-i, zp+i+1
-            if a < 0 or differences.size <= b:
-                break
-            rows = np.array([pattern[a,:], pattern[b,:]])
-            print(rows)
-
-
-
-
-
-
-total = 0
-for p in patterns[12:]:
-    plt.imshow(p=='#')
-    plt.show()
-
-    v = mirror_detector(p)
-    # h = mirror_detector(p.transpose())
-
-    # horizontal_differences = np.diff(p=='#', axis=0).sum(axis=1)
-    # # vertical_differences = 
-
-    
-
-    # print(horizontal_differences, vertical_differences)
-    
-    # h = mirror_detector(horizontal_differences)
-    # v = mirror_detector(vertical_differences)
-
-    # if (h[0] and v[0]):
-    #     print("pakssa")
-    # # print(v,h)
-    # print(h[0] or v[0])
-    # print(h,  v)
-    
-    # if h[1] > 0 and v[1] > 0:
-    #     h[1] *= h[0]
-    #     v[1] *= v[0]
         
-    # total += 100*h[1] + v[1]
+        # Set smudge immideatedy as detected if detection is turned off
+        smudge_detected = not smudge_detection
 
-    break
+        for i in range(differences.size//2):
+            a, b = zp-i, zp+i+1
+            if a < 0 or differences.size < b:
+                # Break if out of bounds
+                break
+            
+            # Rows to inspect, should be similar
+            rows = np.array([pattern[a,:], pattern[b,:]])
+
+            n_differences = np.diff(rows=='#', axis=0).sum()
+            if not smudge_detected and n_differences == 1:
+                smudge_detected = True
+            elif n_differences > 0:
+                is_valid_mirror = False
+                break
+        
+        if is_valid_mirror and smudge_detected:
+            return zp+1
     
-total
+    return 0
+
+def mirror_value(pattern, smudge_detection=False):
+    h = mirror_detector(pattern, smudge_detection)
+    v = mirror_detector(pattern.transpose(), smudge_detection)
+
+    return 100*h + v
+    
+
+total = sum(mirror_value(pattern) for pattern in patterns)
+smudge_total = sum(mirror_value(pattern, smudge_detection=True) for pattern in patterns)
+
+    
+print(f"{total = }") # 30518
+print(f"{smudge_total = }") # 36735
 
 # %%

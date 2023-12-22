@@ -61,10 +61,9 @@ def build_image(bricks, dims, maximums):
 
 
 
-fig, axs = plt.subplots(1,3, figsize=(4,8))
+fig, axs = plt.subplots(1,2, figsize=(4,8))
 axs[0].imshow(build_image(bricks, [0, 2], maximums))
 axs[1].imshow(build_image(bricks, [1, 2], maximums))
-# axs[2].imshow(np.rot90(torni.sum(axis=0)>0) )
 plt.show()
 
 

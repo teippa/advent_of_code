@@ -1,11 +1,17 @@
-# [Advent of Code 2023](https://adventofcode.com/)
- 
+# [Advent of Code](https://adventofcode.com/)
+
+## 2024
+
+Tänä vuonna voisi yrittää käyttää vähemmän numpya ja muita liian helppoja apuvälineitä... ehkä
+
+## 2023
+
 Testaillaan miten ~~monimutkaisesti~~ elegantisti voi asioita koodailla... sillon kun jaksaa ja ehtii ja osaa.
 
-
-## Mitä opin?
+### Mitä opin?
 
 Välilyönneillä erotettuja taulukoita on helppo lukea pandasilla:
+
 ``` python
 pandas.read_csv(
     'input.txt', 
@@ -16,8 +22,8 @@ pandas.read_csv(
 ```
 
 Kirjaimia on kätevä vaihtaa translaten avulla:
+
 ```python
 "Hello team!".translate(str.maketrans('Hetm!', f'Kavsi'))
 # > "Kallo vaasi"
 ```
-

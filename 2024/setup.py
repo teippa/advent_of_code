@@ -35,9 +35,9 @@ def main():
     os.mkdir(today_dir)
     with open(os.path.join(today_dir, 'main.py'), 'a') as file:
         file.write(main_template)
-    with open(os.path.join(today_dir, 'inputs.txt'), 'a') as file:
+    with open(os.path.join(today_dir, 'input.txt'), 'a') as file:
         pass
-    with open(os.path.join(today_dir, 'example_inputs.txt'), 'a') as file:
+    with open(os.path.join(today_dir, 'example_input.txt'), 'a') as file:
         pass
     
     

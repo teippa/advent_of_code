@@ -2,6 +2,7 @@
 
 from re import finditer
 from operator import mul
+from itertools import starmap
 
 # FILENAME = 'example_input.txt
 FILENAME = 'input.txt'
@@ -40,9 +41,9 @@ def one_finder_to_rule_them_all(data):
     
 if __name__ == "__main__":
     
-    task_1 = sum(map(mul, *zip(*mult_finder(data))))
+    task_1 = sum(starmap(mul, mult_finder(data)))
     print(f"{task_1 = }")
         
-    task_2 = sum(map(mul, *zip(*one_finder_to_rule_them_all(data))))
+    task_2 = sum(starmap(mul, one_finder_to_rule_them_all(data)))
     print(f"{task_2 = }")
 

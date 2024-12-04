@@ -4,13 +4,16 @@ main_template = """#%%
 FILENAME = 'example_input.txt'
 # FILENAME = 'input.txt'
 
-def load_data(
-    filename: str, 
-    lines: bool = False, 
-    matrix: bool = False,
-    dtype: callable = str):
+from os import path
+def load_data(filename: str, 
+              lines: bool = False, 
+              matrix: bool = False,
+              dtype: callable = str):
     
-    with open(filename, 'r', encoding='utf-8') as file:
+    script_path = path.dirname(path.abspath(__file__))
+    file_path = path.join(script_path, filename)
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
         if matrix:
             return [
                 [dtype(char) for char in line.strip()]
@@ -42,6 +45,10 @@ from datetime import datetime as dt
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
+def touch(file_path):
+    with open(file_path, 'a') as file:
+        pass
+    
 
 def main():
     now = dt.now()
@@ -50,17 +57,17 @@ def main():
         return
     today_dir_name = f"{now.day:0>2.0f}"
     today_dir_path = os.path.join(script_path, today_dir_name)
-    if os.path.isdir(today_dir_path):
+    
+    try:
+        os.mkdir(today_dir_path)
+    except FileExistsError as e:
         print("Todays directory is already created.")
         return
-    
-    os.mkdir(today_dir_path)
+        
     with open(os.path.join(today_dir_path, 'main.py'), 'a') as file:
         file.write(main_template)
-    with open(os.path.join(today_dir_path, 'input.txt'), 'a') as file:
-        pass
-    with open(os.path.join(today_dir_path, 'example_input.txt'), 'a') as file:
-        pass
+    touch(os.path.join(today_dir_path, 'input.txt'))
+    touch(os.path.join(today_dir_path, 'example_input.txt'))
     
     
 if __name__ == "__main__":

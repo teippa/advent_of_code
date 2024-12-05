@@ -96,8 +96,19 @@ def task_2():
         
     return sum(bad_middle_pages)
     
-if __name__ == "__main__":
-    print('task_1:', task_1())
+    
+def timing(fun, n=100):
+    import timeit
+    exec_time = timeit.timeit(fun, number=n)
+    print(f"{fun.__name__} average exec time: {1000*exec_time/n:.4f} ms")    
 
-    print('task_2:', task_2())
+
+if __name__ == "__main__":
+    
+    print(f'task_1: {task_1()}') # 7365
+    
+    print(f'task_2: {task_2()}') # 5770
+    
+    timing(task_1) #  6.1358 ms
+    timing(task_2) # 19.5241 ms
     

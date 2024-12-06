@@ -1,49 +1,43 @@
-#%%
-from os import path
-from timeit import timeit
+#%% ----------- SETUP -------------------------
+import os
+from sys import path as SYSPATH
+
+script_path = os.path.dirname(os.path.abspath(__file__))
+
+SYSPATH.append(os.path.join(script_path, '..'))
+from utils import load_data, execute_function
+
+#%% --------- THE IMPORTANT STUFF -------------
 
 FILENAME = 'example_input.txt'
 # FILENAME = 'input.txt'
+file_path = os.path.join(script_path, FILENAME)
 
-def timing(fun: callable, n: int = 100) -> float:
-    exec_time = timeit(fun, number=n)
-    average_exec_ms = 1000*exec_time/n
-    print(f"{fun.__name__} average exec time: {average_exec_ms:.4f} ms")
-    return average_exec_ms
-
-def load_data(filename: str, 
-              lines: bool = False, 
-              matrix: bool = False,
-              dtype: callable = str):
-    
-    script_path = path.dirname(path.abspath(__file__))
-    file_path = path.join(script_path, filename)
-    
-    with open(file_path, 'r', encoding='utf-8') as file:
-        if matrix:
-            return [
-                [dtype(char) for char in line.strip()]
-                for line in file.readlines()
-            ]
-        if lines:
-            return [
-                dtype(line)
-                for line in file.readlines()
-            ]
-        return file.read()
 
 
 def task_1():
-    return
+    data = load_data(file_path)
+    return 
 
 def task_2():
+    data = load_data(file_path)
     return
-    
-if __name__ == "__main__":
-    print('task_1:', task_1())
 
-    # print('task_2:', task_2(data))
+
+
+#% -------------------------------------------
+
+if __name__ == "__main__":
+    do_timing = True
+    execute_function(
+        task_1,
+        args = {},
+        do_timing = do_timing
+    )
     
-    # timing(task_1)
-    # timing(task_2)
+    execute_function(
+        task_2,
+        args = {},
+        do_timing = do_timing
+    )
     

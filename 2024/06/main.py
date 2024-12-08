@@ -167,7 +167,7 @@ def task_1():
     gm.traverse_map()
     return gm.count_footprints()
 
-def task_2():
+def task_2_broken_somehow():
     from tqdm import tqdm
     gm = GuardMap(FILENAME)
     gm.traverse_map()
@@ -184,6 +184,96 @@ def task_2():
             n_loops += 1
     return n_loops
 
+def task_2():
+    # Väännetään nyt rautalangasta tämä logiikka ilman hienosteluja
+    # Siltikin vastaus on väärä: 1865
+    # Latasin myös input datan uudelleen. Ei muutosta
+    from itertools import product
+    from tqdm import tqdm
+    def load_grid(filename: str) -> tuple[tuple[int]]:
+        file_path = os.path.join(script_path, filename)
+        def str2int(s):
+            if s == '#': return 0 # Obstacles are 0
+            elif s == '.': return 1 # Empty space is 1
+            elif s == '^': return 2 # Starting position is 2
+            else: raise Exception('Invalid character in map.')
+        return load_data(
+            file_path, 
+            matrix=True,
+            dtype=str2int
+        )
+    def find_starting_position(grid):
+        for y, row in enumerate(grid):
+            try:
+                return (row.index(2), y)
+            except ValueError:
+                continue
+        raise ValueError("Position not found!")
+    
+    # gm = GuardMap(FILENAME)
+    grid = load_grid(FILENAME)
+    size_x, size_y = len(grid[0]), len(grid)
+    loop_counter = 0
+    directions = ((0, -1), (1, 0), (0, 1), (-1, 0))
+    
+    def turn_90deg(direction):
+        return (direction+1) % 4
+        
+    def next_step(px, py, direction):
+        dx, dy = directions[direction]
+        px_new = px+dx
+        py_new = py+dy
+        return (px_new, py_new)
+    
+    def pd(p, d):
+        return (*p, d)
+
+    p0 = find_starting_position(grid)
+    d0 = 0
+    for obstacle_x, obstacle_y in tqdm(product(range(size_x), range(size_y)), total=size_x*size_y, ascii=' #', desc="Placing obstacles"):
+        grid = load_grid(FILENAME)
+        
+        if obstacle_x == p0[0] and obstacle_y == p0[1]:
+            # Obstacle can not be on top on guard start position
+            continue
+        
+        # set obstacle
+        grid[obstacle_y][obstacle_x] = 0
+            
+        def get_from_grid(x, y):
+            return grid[y][x]
+        
+        action_history = set()
+        
+        p, d = p0, d0
+        while pd(p, d) not in action_history:
+            # Add current position and direction to history
+            action_history.add(pd(p, d))
+            
+            try:
+                # Find the next step to take
+                p_next = next_step(*p, d)
+                if get_from_grid(*p_next) == 0:
+                    # Obstacle found
+                    d = turn_90deg(d)
+                    p_next = next_step(*p, d)
+                    if get_from_grid(*p_next) == 0:
+                        # Another obstacle found on the right
+                        d = turn_90deg(d)
+                        p_next = next_step(*p, d)
+                        if get_from_grid(*p_next) == 0:
+                            raise Exception("WTF, I think I have gone through some obstacle... Unless this is the starting position os something...")
+            except IndexError:
+                # We have gone outside the grid probably, I think
+                break
+            # Turnings should be done and it should be safe to update position
+            p = p_next
+            if pd(p, d) in action_history:
+                # We should be in a loop
+                loop_counter += 1
+
+    return loop_counter
+        
 
 
 #% -------------------------------------------
@@ -195,6 +285,12 @@ if __name__ == "__main__":
         args = {},
         do_timing = do_timing
     )
+    
+    # execute_function(
+    #     task_2_broken_somehow,
+    #     args = {},
+    #     do_timing = do_timing
+    # )
     
     execute_function(
         task_2,

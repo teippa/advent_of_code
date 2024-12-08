@@ -5,9 +5,8 @@ from datetime import datetime as dt
 script_path = os.path.dirname(os.path.abspath(__file__))
 
 def touch(file_path):
-    with open(file_path, 'a') as file:
+    with open(file_path, 'a') as _:
         pass
-    
 
 def main():
     now = dt.now()
@@ -25,6 +24,7 @@ def main():
         
     with open(os.path.join(today_dir_path, 'main.py'), 'a') as file, \
          open(os.path.join(script_path, 'template.py'), 'r') as template_file:
+        file.write(f"# https://adventofcode.com/{now.year}/day/{now.day}\n")
         file.write(template_file.read())
     touch(os.path.join(today_dir_path, 'input.txt'))
     touch(os.path.join(today_dir_path, 'example_input.txt'))

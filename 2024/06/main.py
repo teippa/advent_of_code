@@ -7,7 +7,7 @@ script_path = os.path.dirname(os.path.abspath(__file__))
 SYSPATH.append(os.path.join(script_path, '..'))
 from utils import load_data, execute_function
 
-#%% --------- THE IMPORTANT STUFF -------------
+#% --------- THE IMPORTANT STUFF -------------
 FILENAME = 'example_input.txt'
 FILENAME = 'input.txt'
 
@@ -15,16 +15,39 @@ class GuardMap:
     directions = ((0, -1), (1, 0), (0, 1), (-1, 0)) #URDL
     rotate_history: set[tuple[int, int, int]] = None # set definition must be in __init__ ('mutable default argument pitfall')
     looping = False
+    obstacle_memory_thing = None
+    start_position = None
+    start_direction = None
     def __init__(self, filename, custom_obstacle_position: tuple[int,int]|None = None):
         self.data = self._load_data(filename)
-        self._direction_index = 0
+        self.start_position = self._find_starting_position()
+        self.start_direction = 0
+        self.reset(custom_obstacle_position)
+        
+    def reset(self, obstacle_position = None):
+        # Set to default values and add a new obstacle, if defined
+        self.looping = False
+        self.position = tuple(self.start_position)
+        self._direction_index = self.start_direction
         self.rotate_history = set()
-        self.position = self._find_starting_position()
+        
+        if (self.obstacle_memory_thing is not None):
+            # Remove previous obstacle
+            x, y, value = self.obstacle_memory_thing
+            self[x, y] = value
         
         # Set obstacle somewhere, if defined
-        if custom_obstacle_position and not self.is_same_position(self.position, custom_obstacle_position):
-            self.try_set(*custom_obstacle_position, 0)
-        
+        if obstacle_position and not self.is_same_position(self.position, obstacle_position):
+            x_o, y_o = obstacle_position
+            self.obstacle_memory_thing = (
+                x_o,
+                y_o,
+                self[x_o, y_o]
+            )
+            self[x_o, y_o] = 0
+        else:
+            self.obstacle_memory_thing = None
+    
     def _load_data(self, filename: str) -> tuple[tuple[int]]:
         file_path = os.path.join(script_path, filename)
         def str2int(s):
@@ -71,12 +94,13 @@ class GuardMap:
         
     def __getitem__(self, position: tuple[int,int]) -> int:
         x, y = position
-        try:
-            return self.data[y][x]
-        except IndexError:
-            return None
+        if not self._is_in_bounds(x, y):
+            raise IndexError
+        return self.data[y][x]
     def __setitem__(self, position: tuple[int,int], value: int) -> bool:
         x, y = position
+        if not self._is_in_bounds(x, y):
+            raise IndexError
         self.data[y][x] = value
     
     def try_get(self, x: int, y: int, default: int|None = None) -> int:
@@ -93,7 +117,7 @@ class GuardMap:
             return False
         
     def is_occupied(self, x: int, y: int) -> bool:
-        return self[x, y] == 0
+        return self.try_get(x, y) == 0
     
     def _is_in_bounds(self, x: int, y: int) -> bool:
         """ Checks if the coordinates are within data bounds
@@ -167,7 +191,7 @@ def task_1():
     gm.traverse_map()
     return gm.count_footprints()
 
-def task_2_broken_somehow():
+def task_2():
     from tqdm import tqdm
     gm = GuardMap(FILENAME)
     gm.traverse_map()
@@ -176,15 +200,15 @@ def task_2_broken_somehow():
     for po in tqdm(possible_obstacles, 
                    desc="Traversing universes", 
                    ascii=' 123456789#'):
-        gm = GuardMap(FILENAME, po)
-        if gm.is_same_position(po, gm.position):
+        gm.reset(po)
+        if gm.is_same_position(po, gm.start_position):
             continue
         is_loop = gm.traverse_map()
         if is_loop:
             n_loops += 1
     return n_loops
 
-def task_2():
+def task_2_rautalanka():
     # Väännetään nyt rautalangasta tämä logiikka ilman hienosteluja
     # Siltikin vastaus on väärä: 1865
     # Latasin myös input datan uudelleen. Ei muutosta
@@ -203,11 +227,10 @@ def task_2():
             dtype=str2int
         )
     def find_starting_position(grid):
+        start_pos_value = 2
         for y, row in enumerate(grid):
-            try:
-                return (row.index(2), y)
-            except ValueError:
-                continue
+            if start_pos_value in row:
+                return (row.index(start_pos_value), y)
         raise ValueError("Position not found!")
     
     # gm = GuardMap(FILENAME)
@@ -227,21 +250,33 @@ def task_2():
     
     def pd(p, d):
         return (*p, d)
+    
+    def get_from_grid(grid, x, y):
+        ###################################
+        ####### Tämä testi puuttui, #######
+        ####### jolloin neg. arvot  #######
+        ####### olivat valideja     #######
+        ####### koordinaatteja      ####### 
+        ###################################
+        if x<0 or y<0: return None    #####
+        ###################################
+        try:
+            return grid[y][x]
+        except IndexError:
+            return None
 
-    p0 = find_starting_position(grid)
-    d0 = 0
+    # Starting state, same on every loop
+    p0 = find_starting_position(grid) # Position 
+    d0 = 0 # Direction
     for obstacle_x, obstacle_y in tqdm(product(range(size_x), range(size_y)), total=size_x*size_y, ascii=' #', desc="Placing obstacles"):
-        grid = load_grid(FILENAME)
-        
         if obstacle_x == p0[0] and obstacle_y == p0[1]:
             # Obstacle can not be on top on guard start position
             continue
+
+        grid = load_grid(FILENAME)
         
         # set obstacle
         grid[obstacle_y][obstacle_x] = 0
-            
-        def get_from_grid(x, y):
-            return grid[y][x]
         
         action_history = set()
         
@@ -253,15 +288,24 @@ def task_2():
             try:
                 # Find the next step to take
                 p_next = next_step(*p, d)
-                if get_from_grid(*p_next) == 0:
+                p_next_value = get_from_grid(grid, *p_next)
+                if p_next_value is None:
+                    break
+                elif p_next_value == 0:
                     # Obstacle found
                     d = turn_90deg(d)
                     p_next = next_step(*p, d)
-                    if get_from_grid(*p_next) == 0:
+                    p_next_value = get_from_grid(grid, *p_next)
+                    if p_next_value is None:
+                        break
+                    elif get_from_grid(grid, *p_next) == 0:
                         # Another obstacle found on the right
                         d = turn_90deg(d)
                         p_next = next_step(*p, d)
-                        if get_from_grid(*p_next) == 0:
+                        p_next_value = get_from_grid(grid, *p_next)
+                        if p_next_value is None:
+                            break
+                        elif get_from_grid(grid, *p_next) == 0:
                             raise Exception("WTF, I think I have gone through some obstacle... Unless this is the starting position os something...")
             except IndexError:
                 # We have gone outside the grid probably, I think
@@ -271,6 +315,7 @@ def task_2():
             if pd(p, d) in action_history:
                 # We should be in a loop
                 loop_counter += 1
+                break
 
     return loop_counter
         
@@ -286,16 +331,21 @@ if __name__ == "__main__":
         do_timing = do_timing
     )
     
-    # execute_function(
-    #     task_2_broken_somehow,
-    #     args = {},
-    #     do_timing = do_timing
-    # )
-    
     execute_function(
         task_2,
         args = {},
         do_timing = do_timing
     )
     
-# %%
+    # execute_function(
+    #     task_2_rautalanka,
+    #     args = {},
+    #     do_timing = do_timing
+    # )
+
+# Function: task_1
+# 	Result: 4711
+# 	Execution time: 126.6394 ms.
+# Function: task_2
+# 	Result: 1562
+# 	Execution time: 151.0967 s.

@@ -28,7 +28,7 @@ def task_2():
 #% -------------------------------------------
 
 if __name__ == "__main__":
-    do_timing = True
+    do_timing = False
     execute_function(
         task_1,
         args = {},

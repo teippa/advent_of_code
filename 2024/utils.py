@@ -50,7 +50,8 @@ def execute_function(func: callable,
         partial_func = partial(func, **args)
         t_exec = measure_execution_time(partial_func, iterations=timeit_iterations)
     
-    print(f"Function: {func.__name__}")
+    args_print = '(' + ', '.join(f"{k}={v!r}" for k,v in args.items()) + ')'
+    print(f"Function: {func.__name__}" + args_print)
     print(f"\tResult: {result}")
     
     timing_text = 'Average exec time' if (do_timing and timeit_iterations>1) else 'Execution time'

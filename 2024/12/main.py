@@ -12,96 +12,34 @@ from utils import load_data, execute_function
 
 #% --------- THE IMPORTANT STUFF -------------
 
+from PotteryMap import PotteryMap
+from RegionScanner import RegionScanner
+
 FILENAME = 'example_input.txt'
 FILENAME = 'input.txt'
+# FILENAME = 'test_input.txt' # Test input, where the first area 'R' (index: 1) touches itself diagonally
 
-def new_region():
-    return {
-        'area': 0,
-        'perimeter': 0
-    }
+file_path = os.path.join(script_path, FILENAME)
 
-class PotteryMap:
-    directions = ((0, -1), (1, 0), (0, 1), (-1, 0)) #URDL
-    def __init__(self):
-        file_path = os.path.join(script_path, FILENAME)
-        self.data = load_data(file_path, matrix=True)
-        self.correctly_name_regions()
-    
-    def correctly_name_regions(self):
-        reg_i = 1
-        for position, pot in self.iterate_pots():
-            if isinstance(pot, str):
-                self.infect_neighboring_pots(position, search=pot, rename=reg_i)
-                reg_i += 1
-                
-                
-    def infect_neighboring_pots(self, position, search: str, rename: int):
-        x, y = position
-        self[x,y] = rename
-        for search_position in self.positions_around(position):
-            pot = self.try_get(*search_position)
-            if isinstance(pot, str) and pot == search:
-                self.infect_neighboring_pots(search_position, search, rename)
-                    
-            
 
-    def __repr__(self) -> str:
-        return '\n'.join((
-            ''.join(f"\t{x}" for x in row)
-            for row in self.data
-        ))
-        
-    def __getitem__(self, position: tuple[int,int]) -> int:
-        x, y = position
-        if x<0 or y<0:
-            raise IndexError
-        return self.data[y][x]
-    def __setitem__(self, position: tuple[int,int], value: int) -> bool:
-        x, y = position
-        if x<0 or y<0:
-            raise IndexError
-        self.data[y][x] = value
-    
-    def try_get(self, x: int, y: int, default: int|None = None) -> int:
-        try:
-            return self[x, y]
-        except IndexError:
-            return default
-    
-    def iterate_pots(self):
-        for y, row in enumerate(self.data):
-            for x, pot in enumerate(row):
-                yield (x, y), pot
-        
-    # def try_set(self, x: int, y: int, value) -> bool:
-    #     try:
-    #         self[x, y] = value
-    #         return True
-    #     except IndexError:
-    #         return False
-    
-    def positions_around(self, position: tuple[int,int]):
-        for direction in self.directions:
-            yield (
-                position[0] + direction[0],
-                position[1] + direction[1],
-            )
-    
-    def pots_around(self, position: tuple[int,int]):
-        for position_around in self.positions_around(position):
-            yield self.try_get(*position_around)
-        
 
 def task_1():
-    pm = PotteryMap()
+    def new_region():
+        return {
+            'area': 0,
+            'perimeter': 0
+        }
+    data = load_data(file_path, matrix=True)
+    pottery_map = PotteryMap(data)
     regions = defaultdict(new_region)
-    # print(pm)
     
-    for position, pot in pm.iterate_pots():
+    for position, pot in pottery_map.iterate_pots():
+        # Increase the area of this pot type
         regions[pot]['area'] += 1
         
-        for pot_around in pm.pots_around(position):
+        for pot_around in pottery_map.pots_around(position):
+            # Look around the pot. If the surrounding pots are 
+            # different types, there needs to be a fence there.
             if pot_around != pot:
                 regions[pot]['perimeter'] += 1
     
@@ -111,9 +49,16 @@ def task_1():
     )
 
 def task_2():
-    # pm = PotteryMap()
-    return
+    data = load_data(file_path, matrix=True)
+    pottery_map = PotteryMap(data)
 
+    total_cost = 0
+    for region in pottery_map.regions:
+        # Scan each region and count the cost
+        scanner = RegionScanner(pottery_map.get_region_positions(region))
+        total_cost += scanner.scan_region() * scanner.area
+
+    return total_cost
 
 
 #% -------------------------------------------
@@ -134,4 +79,7 @@ if __name__ == "__main__":
     
 # Function: task_1()
 # 	Result: 1374934
-# 	Execution time: 739.6958 ms.
+# 	Execution time: 61.8243 ms.
+# Function: task_2()
+# 	Result: 841078
+# 	Execution time: 952.7192 ms.

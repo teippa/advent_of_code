@@ -11,8 +11,8 @@ from utils import load_data, execute_function
 
 #% --------- THE IMPORTANT STUFF -------------
 
-FILENAME = 'example_input.txt'
-# FILENAME = 'input.txt'
+# FILENAME = 'example_input.txt'
+FILENAME = 'input.txt'
 file_path = os.path.join(script_path, FILENAME)
 
 import re
@@ -30,22 +30,25 @@ def parse_row(s: str) -> tuple[Coordinate, Coordinate]:
     vel = Coordinate(*map(int, match.group('vel').split(',')))
     return pos, vel
 
-def future_position(p0: Coordinate, vel: Coordinate, time_skip_s: int = 1) -> Coordinate:
+def keep_in_room(pos, room):
     return Coordinate(
-        p0.x + vel.x*time_skip_s,
-        p0.y + vel.y*time_skip_s,
+        (pos.x % room.x),
+        (pos.y % room.y)
     )
 
-def keep_in_room(p0, room):
-    return Coordinate(
-        (p0.x % room.x) + (p0.x<0),
-        (p0.y % room.y) + (p0.y<0),
+def future_position(pos: Coordinate, vel: Coordinate, room, time_skip_s: int = 1) -> Coordinate:
+    new_pos = Coordinate(
+        pos.x + vel.x*time_skip_s,
+        pos.y + vel.y*time_skip_s,
     )
+    return keep_in_room(new_pos, room)
+
+
 
 def room_middle_coordinates(room: Coordinate):
     return Coordinate(
-        room.x//2+1,
-        room.y//2+1,
+        room.x//2,
+        room.y//2,
     )
 
 def count_quadrants(robots: Iterable[Coordinate], room: Coordinate):
@@ -62,36 +65,49 @@ def count_quadrants(robots: Iterable[Coordinate], room: Coordinate):
             quads[3] += 1
     return quads
 
-def test():
-    room_size = Coordinate(7, 11)
+def task_1():
     data = load_data(file_path, lines=True, dtype=parse_row)
+
+    room_size = Coordinate(101, 103)
     robots = []
     for p0, v in data:
-        p1 = future_position(p0, v, time_skip_s=100)
-        p1 = keep_in_room(p1, room_size)
+        p1 = future_position(p0, v, room_size, time_skip_s=100)
         robots.append(p1)
     quads = count_quadrants(robots, room_size)
-    
-    import numpy as np
-    
-    asd = np.zeros(room_size)
-    print(asd, asd.shape)
-    print(robots)
-    for p in robots:
-        asd[p.y, p.x] += 1
-    
-    print(prod(quads))
+
+    return prod(quads)
 
 
-def task_1():
-    room_size = Coordinate(101, 103)
-    # print(quads)
-    # print(room_size)
-    return 
+
+
+def is_many_positions_in_line(positions):
+    consecutives = 0
+    prev_x = 0
+    for p in sorted(positions, key=lambda p: (p.y, p.x)):
+        if (prev_x+1 == p.x):
+            consecutives += 1
+        prev_x = p.x
+    if consecutives/len(positions) > .3:
+        # print(consecutives/len(positions))
+        return True
+    return False
 
 def task_2():
-    # data = load_data(file_path)
-    return
+    data = load_data(file_path, lines=True, dtype=parse_row)
+    
+    room_size = Coordinate(101, 103)
+    positions, velocities = zip(*data)
+    
+    for seconds in range(1, 10_000):
+        positions = [
+            future_position(p0, v, room_size)
+            for p0, v in zip(positions, velocities)
+        ]
+        if is_many_positions_in_line(positions):
+            # If something like 30% of points are in line, 
+            # there may be some structure there
+            return seconds
+
 
 
 
@@ -99,8 +115,6 @@ def task_2():
 
 if __name__ == "__main__":
     do_timing = False
-
-    test()
 
     execute_function(
         task_1,
@@ -113,4 +127,10 @@ if __name__ == "__main__":
         args = {},
         do_timing = do_timing
     )
-    
+
+# Function: task_1()
+# 	Result: 230900224
+# 	Execution time: 8.9982 ms.
+# Function: task_2()
+# 	Result: 6532
+# 	Execution time: 10.3336 s.

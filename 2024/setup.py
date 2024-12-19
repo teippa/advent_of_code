@@ -32,5 +32,8 @@ def main(now: dt|None = None):
     
     
 if __name__ == "__main__":
-    # main(dt.strptime('18.12.24', r'%d.%m.%y'))
-    main()
+    date = '17.12.24'
+    if date:
+        main(dt.strptime(date, r'%d.%m.%y'))
+    else:
+        main()

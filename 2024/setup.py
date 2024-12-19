@@ -8,8 +8,9 @@ def touch(file_path):
     with open(file_path, 'a') as _:
         pass
 
-def main():
-    now = dt.now()
+def main(now: dt|None = None):
+    if now is None:
+        now = dt.now()
     if now.month != 12:
         print(f"It's not X-mas time yet!")
         return
@@ -19,7 +20,7 @@ def main():
     try:
         os.mkdir(today_dir_path)
     except FileExistsError as e:
-        print("Todays directory is already created.")
+        print(f"Day {now.day} directory is already created.")
         return
         
     with open(os.path.join(today_dir_path, 'main.py'), 'a') as file, \
@@ -31,4 +32,5 @@ def main():
     
     
 if __name__ == "__main__":
+    # main(dt.strptime('18.12.24', r'%d.%m.%y'))
     main()

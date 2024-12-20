@@ -32,7 +32,9 @@ def main(now: dt|None = None):
     
     
 if __name__ == "__main__":
-    date = '17.12.24'
+    date = None
+    # date = '17.12.24'
+    
     if date:
         main(dt.strptime(date, r'%d.%m.%y'))
     else:

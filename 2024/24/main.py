@@ -7,7 +7,7 @@ from typing import Callable
 
 script_path = os.path.dirname(os.path.abspath(__file__))
 
-SYSPATH.append(os.path.join(script_path, '..'))
+SYSPATH.append(os.path.join(script_path, '../..'))
 from utils import load_data, execute_function
 
 #% --------- THE IMPORTANT STUFF -------------

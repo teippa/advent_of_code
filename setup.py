@@ -15,7 +15,7 @@ def main(now: dt|None = None):
         print(f"It's not X-mas time yet!")
         return
     today_dir_name = f"{now.day:0>2.0f}"
-    today_dir_path = os.path.join(script_path, today_dir_name)
+    today_dir_path = os.path.join(script_path, str(now.year), today_dir_name)
     
     try:
         os.mkdir(today_dir_path)
@@ -25,8 +25,7 @@ def main(now: dt|None = None):
         
     with open(os.path.join(today_dir_path, 'main.py'), 'a') as file, \
          open(os.path.join(script_path, 'template.py'), 'r') as template_file:
-        file.write(f"# https://adventofcode.com/{now.year}/day/{now.day}\n")
-        file.write(template_file.read())
+        file.write(f"# https://adventofcode.com/{now.year}/day/{now.day}\n\n" + template_file.read())
     touch(os.path.join(today_dir_path, 'input.txt'))
     touch(os.path.join(today_dir_path, 'example_input.txt'))
     
@@ -39,3 +38,4 @@ if __name__ == "__main__":
         main(dt.strptime(date, r'%d.%m.%y'))
     else:
         main()
+# %%

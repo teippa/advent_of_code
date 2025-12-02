@@ -35,7 +35,8 @@ def calculate_timeit_iterations(one_iteration_time_s, max_time_s = 30):
 def execute_function(func: callable, 
                      args: dict = None,
                      do_timing: bool = False, 
-                     timeit_iterations: int = -1):
+                     timeit_iterations: int = -1,
+                     solution = None):
     if args is None: args = {}
     
     # Timing the first execution to calculate a good
@@ -59,6 +60,9 @@ def execute_function(func: callable,
         print(f"\t{timing_text}: {t_exec:.4f} s.")
     else:
         print(f"\t{timing_text}: {1000*t_exec:.4f} ms.")
+    
+    if solution is not None:
+        print("\t✔️ CORRECT!" if result == solution else "\t❌ INCORRECT!")
         
     return result
 

@@ -32,12 +32,14 @@ if __name__ == "__main__":
     execute_function(
         task_1,
         args = {},
-        do_timing = do_timing
+        do_timing = do_timing,
+        solution = None
     )
     
     execute_function(
         task_2,
         args = {},
-        do_timing = do_timing
+        do_timing = do_timing,
+        solution = None
     )
     

@@ -2,11 +2,33 @@
 from timeit import timeit
 from time import time
 from functools import partial
+from typing import Callable, Literal, TypeVar, overload
+
+T = TypeVar('T')
+
+
+@overload
+def load_data(file_path: str, *,
+              lines: False = ..., matrix: False = ...,
+              dtype: Callable[[str], T] = ...
+              ) -> str: ...
+
+@overload
+def load_data(file_path: str, *,
+              lines: bool = Literal[True],
+              dtype: Callable[[str], T] = ...
+              ) -> list[T]: ...
+
+@overload
+def load_data(file_path: str, *, 
+              matrix: bool = Literal[True],
+              dtype: Callable[[str], T] = ... 
+              ) -> list[list[T]]: ...
 
 def load_data(file_path: str, 
               lines: bool = False, 
               matrix: bool = False,
-              dtype: callable = str):
+              dtype: Callable[[str], T] = str):
     
     with open(file_path, 'r', encoding='utf-8') as file:
         if matrix:
@@ -21,18 +43,18 @@ def load_data(file_path: str,
             ]
         return file.read()
 
-def measure_execution_time(func: callable, iterations: int = 100) -> float:
+def measure_execution_time(func: Callable, iterations: int = 100) -> float:
     execution_time = timeit(func, number=iterations)
     avg_time_per_call = execution_time / iterations
 
     return avg_time_per_call
 
-def calculate_timeit_iterations(one_iteration_time_s, max_time_s = 30):
+def calculate_timeit_iterations(one_iteration_time_s: int, max_time_s: int = 30):
     if one_iteration_time_s < 0.01:
         return 10_000
     return max(1, int(max_time_s/one_iteration_time_s))
 
-def execute_function(func: callable, 
+def execute_function(func: Callable, 
                      args: dict = None,
                      do_timing: bool = False, 
                      timeit_iterations: int = -1,

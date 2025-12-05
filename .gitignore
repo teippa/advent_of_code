@@ -1,3 +1,6 @@
+# Puzzle inputs are not supposed to be saved. Oops
+input.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

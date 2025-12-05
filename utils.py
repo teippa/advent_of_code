@@ -8,22 +8,31 @@ T = TypeVar('T')
 
 
 @overload
-def load_data(file_path: str, *,
-              lines: False = ..., matrix: False = ...,
-              dtype: Callable[[str], T] = ...
-              ) -> str: ...
-
+def load_data(
+    file_path: str,
+    *,
+    lines: Literal[False] = ...,
+    matrix: Literal[False] = ...,
+    dtype: Callable[[str], T] = ...,
+) -> str: ...
+    
 @overload
-def load_data(file_path: str, *,
-              lines: bool = Literal[True],
-              dtype: Callable[[str], T] = ...
-              ) -> list[T]: ...
-
+def load_data(
+    file_path: str,
+    *,
+    lines: Literal[True],
+    matrix: bool = ...,
+    dtype: Callable[[str], T] = ...,
+) -> list[T]: ...
+    
 @overload
-def load_data(file_path: str, *, 
-              matrix: bool = Literal[True],
-              dtype: Callable[[str], T] = ... 
-              ) -> list[list[T]]: ...
+def load_data(
+    file_path: str,
+    *,
+    lines: Literal[False] = ...,
+    matrix: Literal[True],
+    dtype: Callable[[str], T] = ...,
+) -> list[list[T]]: ...
 
 def load_data(file_path: str, 
               lines: bool = False, 

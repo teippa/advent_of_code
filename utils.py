@@ -38,11 +38,20 @@ def load_data(file_path: str,
               lines: bool = False, 
               matrix: bool = False,
               dtype: Callable[[str], T] = str):
-    
+    """Load data from file and do some basic output formatting
+
+    Args:
+        file_path (str): Path to file
+        lines (bool, optional): Output should be list of values. Defaults to False.
+        matrix (bool, optional): Output should be a matrix of values. Defaults to False.
+        dtype (Callable[[str], T], optional): Datatype/mapping of output values. Defaults to str().
+    """
+    if lines and matrix:
+        print("WARINIG! Output requested as both lines and matrix. Using matrix output.")
     with open(file_path, 'r', encoding='utf-8') as file:
         if matrix:
             return [
-                [dtype(char) for char in line.strip()]
+                list(map(dtype, line))
                 for line in file.readlines()
             ]
         if lines:
@@ -82,7 +91,7 @@ def execute_function(func: Callable,
         partial_func = partial(func, **args)
         t_exec = measure_execution_time(partial_func, iterations=timeit_iterations)
     
-    args_print = '(' + ', '.join(f"{k}={v!r}" for k,v in args.items()) + ')'
+    args_print = '' # '(' + ', '.join(f"{k}={v!r}" for k,v in args.items()) + ')'
     print(f"Function: {func.__name__}" + args_print)
     print(f"\tResult: {result}")
     

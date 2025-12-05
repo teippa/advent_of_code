@@ -1,26 +1,23 @@
 #%% ----------- SETUP -------------------------
 import os
-from sys import path as SYSPATH
+import sys
 
 script_path = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(script_path, '..', '..'))
 
-SYSPATH.append(os.path.join(script_path, '../..'))
+sys.path.append(project_root)
 from utils import load_data, execute_function
 
 #%% --------- THE IMPORTANT STUFF -------------
 
-FILENAME = 'example_input.txt'
-# FILENAME = 'input.txt'
-file_path = os.path.join(script_path, FILENAME)
 
 
-
-def task_1():
-    data = load_data(file_path)
+def task_1(input_path: str):
+    data = load_data(input_path)
     return 
 
-def task_2():
-    data = load_data(file_path)
+def task_2(input_path: str):
+    data = load_data(input_path)
     return
 
 
@@ -29,17 +26,37 @@ def task_2():
 
 if __name__ == "__main__":
     do_timing = False
-    execute_function(
-        task_1,
-        args = {},
-        do_timing = do_timing,
-        solution = None
-    )
     
-    execute_function(
-        task_2,
-        args = {},
-        do_timing = do_timing,
-        solution = None
-    )
+    file_path_example = os.path.join(script_path, 'example_input.txt')
+    if os.path.isfile(file_path_example):
+        execute_function(
+            task_1,
+            args = {'input_path': file_path_example},
+            do_timing = do_timing,
+            solution = None
+        )
+        
+        execute_function(
+            task_2,
+            args = {'input_path': file_path_example},
+            do_timing = do_timing,
+            solution = None
+        )
+        
+    
+    file_path = os.path.join(script_path, 'input.txt')
+    if os.path.isfile(file_path):
+        execute_function(
+            task_1,
+            args = {'input_path': file_path},
+            do_timing = do_timing,
+            solution = None
+        )
+        
+        execute_function(
+            task_2,
+            args = {'input_path': file_path},
+            do_timing = do_timing,
+            solution = None
+        )
     

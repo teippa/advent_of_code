@@ -21,7 +21,7 @@ def is_within(value: int, check_range: tuple[int, int]) -> bool:
 
 def compress_ranges(ranges: Ranges) -> Ranges:
     """
-    Combine overlapping ranges
+    Combine overlapping ranges for efficiency
     """
     ranges.sort()
     compressed = []
@@ -37,36 +37,42 @@ def compress_ranges(ranges: Ranges) -> Ranges:
         return compress_ranges(compressed)
     return compressed
 
-def parse_data(raw_data: list[str]):
+def parse_data(raw_data: list[str]) -> tuple[Ranges, Produce]:
     ranges = []
     produce = []
+    # Collect ranges from the first section of the dataset
     for line in raw_data:
         if not line:
             break
         ranges.append(tuple(map(int, line.split('-'))))
         
-    produce = list(map(int, raw_data[len(ranges)+1:]))
-    compressed = compress_ranges(ranges)
+    # Collect produce from the second section of the dataset
+    produce = list(map(int, raw_data[len(ranges)+1 : ]))
     
-    return compressed, produce
+    # Combine overlapping ranges
+    compressed_ranges = compress_ranges(ranges)
+    
+    return compressed_ranges, produce
     
 
 
 def task_1(input_path: str):
     data = load_data(input_path, lines=True, dtype=str.strip)
     ranges, produce = parse_data(data)
+    
+    # Filter out produce that is not within the ranges
     good_produce = [
         p
         for p in produce
         if any(is_within(p, r) for r in ranges)
     ]
-    
     return len(good_produce)
 
 def task_2(input_path: str):
     data = load_data(input_path, lines=True, dtype=str.strip)
     ranges, _ = parse_data(data)
-    return sum(r[1] - r[0] + 1 for r in ranges)
+    range_lengths = ((r[1] - r[0] + 1) for r in ranges)
+    return sum(range_lengths)
 
 
 

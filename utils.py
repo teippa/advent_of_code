@@ -67,10 +67,10 @@ def measure_execution_time(func: Callable, iterations: int = 100) -> float:
 
     return avg_time_per_call
 
-def calculate_timeit_iterations(one_iteration_time_s: int, max_time_s: int = 30):
+def calculate_timeit_iterations(one_iteration_time_s: float, max_time_s: float = 30, min_iterations: int = 3):
     if one_iteration_time_s < 0.01:
         return 10_000
-    return max(1, int(max_time_s/one_iteration_time_s))
+    return max(min_iterations, int(max_time_s/one_iteration_time_s))
 
 def execute_function(func: Callable, 
                      args: dict = None,
@@ -81,7 +81,7 @@ def execute_function(func: Callable,
     
     # Timing the first execution to calculate a good
     # number of timing iterations if not specified
-    t0 = time() 
+    t0 = time()
     result = func(**args)
     t_exec = time() - t0
     

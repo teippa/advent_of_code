@@ -29,34 +29,35 @@ if __name__ == "__main__":
     
     file_path_example = os.path.join(script_path, 'example_input.txt')
     if os.path.isfile(file_path_example):
-        execute_function(
+        print(f"Task with example inputs:")
+        task_1_success = execute_function(
             task_1,
             args = {'input_path': file_path_example},
             do_timing = do_timing,
             solution = None
         )
-        
-        execute_function(
+        task_2_success = execute_function(
             task_2,
             args = {'input_path': file_path_example},
             do_timing = do_timing,
             solution = None
         )
-        
     
-    file_path = os.path.join(script_path, 'input.txt')
-    if os.path.isfile(file_path):
-        execute_function(
-            task_1,
-            args = {'input_path': file_path},
-            do_timing = do_timing,
-            solution = None
-        )
+        file_path = os.path.join(script_path, 'input.txt')
+        if os.path.isfile(file_path):
+            print(f"Task with real inputs:")
+            if task_1_success:
+                execute_function(
+                    task_1,
+                    args = {'input_path': file_path},
+                    do_timing = do_timing,
+                    solution = None
+                )
+            if task_2_success:
+                execute_function(
+                    task_2,
+                    args = {'input_path': file_path},
+                    do_timing = do_timing,
+                    solution = None
+                )
         
-        execute_function(
-            task_2,
-            args = {'input_path': file_path},
-            do_timing = do_timing,
-            solution = None
-        )
-    

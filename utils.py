@@ -102,9 +102,10 @@ def execute_function(func: Callable,
         print(f"\t{timing_text}: {1000*t_exec:.4f} ms.")
     
     if solution is not None:
-        print("\t✔️ CORRECT!" if result == solution else "\t❌ INCORRECT!")
-        
-    return result
+        success = solution == result
+        print("\t✔️ CORRECT!" if success else "\t❌ INCORRECT!")
+        return success
+    return False
 
 if __name__ == "__main__":
     def test(sleep_time):
